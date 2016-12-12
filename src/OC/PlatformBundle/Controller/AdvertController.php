@@ -5,6 +5,7 @@
 namespace OC\PlatformBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -26,6 +27,8 @@ class AdvertController extends Controller
 	public function viewAction($id, Request $request)
   {
     //return new Response("Affichage de l'annonce d'id : ".$id);
+
+    /*
     // On récupère notre paramètre tag
     $tag = $request->query->get('tag');
 
@@ -33,6 +36,30 @@ class AdvertController extends Controller
       'id' => $id,
       'tag' => $tag
     ));
+    */
+
+    /*
+    // Récupération de l'URL de l'accueil du Site
+    $url = $this->get('router')->generate('oc_platform_home');
+
+    return $this->redirect($url);
+    */
+
+    //return $this->redirectToRoute('oc_platform_home');
+
+    // On récupère notre paramètre tag
+    $tag = $request->query->get('tag');
+
+    /*
+    // Créons nous-même la réponse en JSON, grâce à la fonction json_encode()
+    $response = new Response(json_encode(array('id' => $id, 'tag' => $tag)));
+
+    $response->headers->set('Content-Type', 'application/json');
+
+    return $response;
+    */
+
+    return new JsonResponse(array('id' => $id, 'tag' => $tag));
   }
 
   public function viewSlugAction($slug, $year, $_format)
