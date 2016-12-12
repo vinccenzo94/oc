@@ -47,6 +47,7 @@ class AdvertController extends Controller
 
     //return $this->redirectToRoute('oc_platform_home');
 
+    /*
     // On récupère notre paramètre tag
     $tag = $request->query->get('tag');
 
@@ -59,7 +60,18 @@ class AdvertController extends Controller
     return $response;
     */
 
-    return new JsonResponse(array('id' => $id, 'tag' => $tag));
+    //return new JsonResponse(array('id' => $id, 'tag' => $tag));
+
+    // Récupération de la session
+    $session = $request->getSession();
+
+    // On récupère le contenu de la variable user_id
+    $userId = $session->get('user_id');
+
+    // On définit une nouvelle valeur pour cette variable user_id
+    $session->set('user_id', 91);
+
+    return new Response("<body>Je suis une page de test, je n'ai rien à dire</body>");
   }
 
   public function viewSlugAction($slug, $year, $_format)
@@ -67,5 +79,45 @@ class AdvertController extends Controller
     return new Response(
       "On pourrait afficher l'annonce correspondant au slug '".$slug."', créée en ".$year." et au format ".$_format."."
     );
+  }
+
+  public function addAction(Request $request)
+  {
+    $session = $request->getSession();
+
+    // Bien sûr, cette méthode devra réellement ajouter l'annonce
+
+    // Mais faisons comme si c'était le cas
+    $session->getFlashBag()->add('info', 'Annonce bien enregistrée');
+
+    // Le « flashBag » est ce qui contient les messages flash dans la session
+    // Il peut bien sûr contenir plusieurs messages :
+    $session->getFlashBag()->add('info', 'Oui oui, elle est bien enregistrée !');
+
+    // Puis on redirige vers la page de visualisation de cette annonce
+    return $this->redirectToRoute('oc_platform_view', array('id' => 5));
+  }
+
+  public function editAction($id, Request $request)
+  {
+    // Ici, on récupèrera l'annonce correspondante à $id
+
+    // Même mécanisme que pour l'ajout
+    if ($request->isMethod('POST')) {
+      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
+
+      return $this->redirectToRoute('oc_platform_view', array('id' => 5));
+    }
+
+    return $this->render('OCPlatformBundle:Advert:edit.html.twig');
+  }
+
+  public function deleteAction($id)
+  {
+    // Ici, on récupérera l'annonce correspondant à $id
+
+    // Ici, on gérera la suppression de l'annonce en question
+
+    return $this->render('OCPlatformBundle:Advert:delete.html.twig');
   }
 }

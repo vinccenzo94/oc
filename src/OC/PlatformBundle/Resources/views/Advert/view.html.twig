@@ -9,5 +9,14 @@
 <body>
     <h1>Hello Annonce n°{{ id }}</h1>
     <p>Tag éventuel : {{ tag }}</p>
+<div>
+    {% for message in app.session.flashbag.get('info') %}
+        <p>Message flash : {{ message }}</p>
+    {% endfor %}
+</div>
+    <p>
+        Ici nous pourrons lire l'annonce ayant comme id : {{ id }}<br />
+        Mais pour l'instant, nous ne savons pas encore le faire, cela viendra !
+    </p>
 </body>
 </html>
