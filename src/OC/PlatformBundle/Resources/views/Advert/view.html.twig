@@ -20,6 +20,14 @@
         {{ advert.content }}
     </div>
 
+    <ul class="nav nav-pills nav-stacked">
+        {% for application in listApplications %}
+            <li>
+                {{ application.author }} : <i>{{ application.content }}</i>
+            </li>
+        {% endfor %}
+    </ul>
+
     <p>
         <a href="{{ path('oc_platform_home') }}" class="btn btn-default">
             <i class="glyphicon glyphicon-chevron-left"></i>
