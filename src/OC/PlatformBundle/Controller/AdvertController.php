@@ -4,6 +4,7 @@
 
 namespace OC\PlatformBundle\Controller;
 
+use OC\PlatformBundle\Entity\Advert;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -53,14 +54,29 @@ class AdvertController extends Controller
 
   public function viewAction($id)
   {
+    // On récupère le repository
+    $repository = $this->getDoctrine()->getManager()->getRepository('OCPlatformBundle:Advert');
+
+    // On récupère l'entité correspondante à l'id $id
+    $advert = $repository->find($id);
+    // Autre syntaxe depuis un contrôleur
+    //$advert = $this->getDoctrine()->getManager()->find('OCPlatformBundle:Advert', $id);
+
+    // $advert est donc une instance de OC\PlatformBundle\Entity\Advert
+    // ou null si l'id $id n'existe pas, d'où ce if :
+    if ($advert === null) {
+      throw new NotFoundHttpException("L'annonce d'id".$id." n'existe pas.");
+    }
+
+
     // Ici, on récupérera l'annonce correspondante à l'id $id
-    $advert = array(
+    /*$advert = array(
       'title'   => 'Recherche développpeur Symfony2',
       'id'      => $id,
       'author'  => 'Alexandre',
       'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
       'date'    => new \Datetime()
-    );
+    );*/
 
     return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
       'advert' => $advert
@@ -69,7 +85,23 @@ class AdvertController extends Controller
 
   public function addAction(Request $request)
   {
-    // On récupère le service
+    $advert = new Advert();
+    $advert->setTitle('Recherche développeur Symfony.');
+    $advert->setAuthor('Alexandre');
+    $advert->setContent('Nous recherchons un développeur Symfony débutant sur Lyon. Blabla...');
+
+    $em = $this->getDoctrine()->getManager();
+    $em->persist($advert);
+    $em->flush();
+
+    if ($request->isMethod('POST')) {
+      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
+      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+    }
+
+    return $this->render('OCPlatformBundle:Advert:add.html.twig', array('advert' => $advert));
+
+    /*// On récupère le service
     $antispam = $this->container->get('oc_platform.antispam');
 
     // Je pars du principe que $text contient le texte d'un message quelconque
@@ -92,7 +124,7 @@ class AdvertController extends Controller
     }
 
     // Si on n'est pas en POST, alors on affiche le formulaire
-    return $this->render('OCPlatformBundle:Advert:add.html.twig');
+    return $this->render('OCPlatformBundle:Advert:add.html.twig');*/
   }
 
   public function editAction($id, Request $request)
