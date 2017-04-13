@@ -5,8 +5,10 @@
 namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\Image;
+use OC\PlatformBundle\Entity\Skill;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -72,7 +74,16 @@ class AdvertController extends Controller
     }
 
     // On récupère la liste des candidatures de cette annonce
-    $listApplications = $em->getRepository('OCPlatformBundle:Application')->findBy(array('advert' => $advert));
+    $listApplications = $em
+      ->getRepository('OCPlatformBundle:Application')
+      ->findBy(array('advert' => $advert)
+      );
+
+    // On récupère maintenant la liste des AdvertSkill
+    $listAdvertSkills = $em
+      ->getRepository('OCPlatformBundle:AdvertSkill')
+      ->findBy(array('advert' => $advert)
+      );
 
     // Ici, on récupérera l'annonce correspondante à l'id $id
     /*$advert = array(
@@ -85,7 +96,8 @@ class AdvertController extends Controller
 
     return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
       'advert' => $advert,
-      'listApplications' => $listApplications
+      'listApplications' => $listApplications,
+      'listAdvetSkills' => $listAdvertSkills
     ));
   }
 
@@ -120,6 +132,26 @@ class AdvertController extends Controller
 
     // On récupère l'EntityManager
     $em = $this->getDoctrine()->getManager();
+
+    // On récupère toutes les compétences possibles
+    $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+
+    // Pour chaque compétence
+    foreach ($listSkills as $skill) {
+      // On crée une nouvelle "relation entre 1 annonce et 1 compétence"
+      $advertSkill = new AdvertSkill();
+
+      // On la lie à l'annonce, qui est ici toujours la même
+      $advertSkill->setAdvert($advert);
+      // On la lie à la compétence, qui change ici dans la boucle foreach
+      $advertSkill->setSkill($skill);
+
+      // Arbitrairement, on dit que chaque compétence est requise au niveau expert
+      $advertSkill->setLevel('Expert');
+
+      // Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+      $em->persist($advertSkill);
+    }
 
     // Etape 1 : On "persiste" l'entité
     $em->persist($advert);
