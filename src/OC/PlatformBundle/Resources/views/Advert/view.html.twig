@@ -20,6 +20,15 @@
         {{ advert.content }}
     </div>
 
+    {% if not advert.categories.empty %}
+        <p>
+            Cette annonce est parue dans les catégories suivantes :
+            {% for category in advert.categories %}
+                {{ category.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+
     <ul class="nav nav-pills nav-stacked">
         {% for application in listApplications %}
             <li>

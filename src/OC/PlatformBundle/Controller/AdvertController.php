@@ -68,7 +68,7 @@ class AdvertController extends Controller
     // $advert est donc une instance de OC\PlatformBundle\Entity\Advert
     // ou null si l'id $id n'existe pas, d'où ce if :
     if ($advert === null) {
-      throw new NotFoundHttpException("L'annonce d'id".$id." n'existe pas.");
+      throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     }
 
     // On récupère la liste des candidatures de cette annonce
@@ -171,15 +171,37 @@ class AdvertController extends Controller
 
   public function editAction($id, Request $request)
   {
+    $em = $this->getDoctrine()->getManager();
+
+    // On récupère l'annonce $id
+    $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+
+    if ($advert === null) {
+      throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+    }
+
+    $listCategories = $em->getRepository('OCPlatformBundle:Category')->findAll();
+
+    // On boucle sur les catégories pour les lier à l'annonce
+    foreach ($listCategories as $category) {
+      $advert->addCategory($category);
+    }
+
+    // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
+    // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
+
+    // Étape 2 : On déclenche l'enregistrement
+    $em->flush();
+
     // Ici, on récupérera l'annonce correspondante à $id
 
-    $advert = array(
+    /*$advert = array(
       'title'   => 'Recherche développpeur Symfony',
       'id'      => $id,
       'author'  => 'Alexandre',
       'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
       'date'    => new \Datetime()
-    );
+    );*/
 
     return $this->render('OCPlatformBundle:Advert:edit.html.twig', array(
       'advert' => $advert
@@ -188,9 +210,24 @@ class AdvertController extends Controller
 
   public function deleteAction($id)
   {
-    // Ici, on récupérera l'annonce correspondant à $id
+    $em = $this->getDoctrine()->getManager();
 
-    // Ici, on gérera la suppression de l'annonce en question
+    // On récupère l'annonce $id
+    $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+
+    if ($advert === null) {
+      throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+    }
+
+    foreach ($advert->getCategories() as $category) {
+      $advert->removeCategory($category);
+    }
+
+    // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
+    // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
+
+    // On déclenche la modification
+    $em->flush();
 
     return $this->render('OCPlatformBundle:Advert:delete.html.twig');
   }
