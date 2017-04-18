@@ -68,6 +68,11 @@ class Advert
    */
     private $categories;
 
+  /**
+   * @ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\Applications", mappedBy="advert")
+   */
+    private $applications;
+
     public function __construct()
     {
       // Par défaut, la date de l'annonce est la date d'aujourd'hui
@@ -262,5 +267,45 @@ class Advert
     public function getCategories()
     {
         return $this->categories;
+    }
+
+    /**
+     * Add application
+     *
+     * @param \OC\PlatformBundle\Entity\Applications $application
+     *
+     * @return Advert
+     */
+    public function addApplication(\OC\PlatformBundle\Entity\Applications $application)
+    {
+        $this->applications[] = $application;
+
+        // On lie l'annonce à la candidature
+        $application->setAdvert($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove application
+     *
+     * @param \OC\PlatformBundle\Entity\Applications $application
+     */
+    public function removeApplication(\OC\PlatformBundle\Entity\Applications $application)
+    {
+        $this->applications->removeElement($application);
+
+        // Et si notre relation était facultative (nullable=true, ce qui n'est pas notre cas ici attention) :
+        // $application->setAdvert(null);
+    }
+
+    /**
+     * Get applications
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getApplications()
+    {
+        return $this->applications;
     }
 }
