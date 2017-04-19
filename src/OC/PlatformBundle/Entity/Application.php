@@ -42,6 +42,11 @@ class Application
   private $date;
 
   /**
+   * @ORM\Column(name="email", type="string", length=255)
+   */
+  private $email;
+
+  /**
    * @ORM\ManyToOne(targetEntity="OC\PlatformBundle\Entity\Advert")
    * @ORM\JoinColumn(nullable=false)
    */
@@ -172,5 +177,29 @@ class Application
     public function decrease()
     {
       $this->getAdvert()->decreaseApplication();
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     *
+     * @return Application
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 }

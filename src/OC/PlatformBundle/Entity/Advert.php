@@ -65,6 +65,13 @@ class Advert
      */
     private $updateAt;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255)
+     */
+    private $email;
+
 
     /**
      * @var int
@@ -389,5 +396,29 @@ class Advert
     public function decreaseApplication()
     {
       $this->applications--;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     *
+     * @return Advert
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 }
