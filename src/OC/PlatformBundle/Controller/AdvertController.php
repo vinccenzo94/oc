@@ -4,6 +4,7 @@
 
 namespace OC\PlatformBundle\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
@@ -25,30 +26,9 @@ class AdvertController extends Controller
       throw new NotFoundHttpException('Page "'.$page.'" inexistante.');
     }
 
-    // Ici, on récupérera la liste des annonces, puis on la passera au template
-
-    // Notre liste d'annonce en dur
-    $listAdverts = array(
-      array(
-        'title'   => 'Recherche développpeur Symfony',
-        'id'      => 1,
-        'author'  => 'Alexandre',
-        'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-        'date'    => new \Datetime()),
-      array(
-        'title'   => 'Mission de webmaster',
-        'id'      => 2,
-        'author'  => 'Hugo',
-        'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-        'date'    => new \Datetime()),
-      array(
-        'title'   => 'Offre de stage webdesigner',
-        'id'      => 3,
-        'author'  => 'Mathieu',
-        'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-        'date'    => new \Datetime())
-    );
-
+    $em = $this->getDoctrine()->getManager();
+    $repository = $em->getRepository('OCPlatformBundle:Advert');
+    $listAdverts = $repository->findAll();
 
     // Mais pour l'instant, on ne fait qu'appeler le template
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
@@ -85,19 +65,10 @@ class AdvertController extends Controller
       ->findBy(array('advert' => $advert)
       );
 
-    // Ici, on récupérera l'annonce correspondante à l'id $id
-    /*$advert = array(
-      'title'   => 'Recherche développpeur Symfony2',
-      'id'      => $id,
-      'author'  => 'Alexandre',
-      'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
-      'date'    => new \Datetime()
-    );*/
-
     return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
       'advert' => $advert,
       'listApplications' => $listApplications,
-      'listAdvetSkills' => $listAdvertSkills
+      'listAdvertSkills' => $listAdvertSkills
     ));
   }
 
@@ -228,15 +199,11 @@ class AdvertController extends Controller
     // Étape 2 : On déclenche l'enregistrement
     $em->flush();
 
-    // Ici, on récupérera l'annonce correspondante à $id
+    if ($request->isMethod('POST')) {
+      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
 
-    /*$advert = array(
-      'title'   => 'Recherche développpeur Symfony',
-      'id'      => $id,
-      'author'  => 'Alexandre',
-      'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-      'date'    => new \Datetime()
-    );*/
+      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+    }
 
     return $this->render('OCPlatformBundle:Advert:edit.html.twig', array(
       'advert' => $advert
@@ -247,19 +214,40 @@ class AdvertController extends Controller
   {
     $em = $this->getDoctrine()->getManager();
 
+    // Ensuite, on va supprimer l'annonce avec ses liaisons
+    $repository = $em->getRepository('OCPlatformBundle:Advert');
+
     // On récupère l'annonce $id
-    $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+    $advert = $repository->find($id);
 
     if ($advert === null) {
       throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     }
 
+    // On va d'abord supprimer les liaisons entre les annonces et les compétences
+    $repository = $em->getRepository('OCPlatformBundle:AdvertSkill');
+    $listAdvertSkill = $repository->findBy(array('advert' => $advert));
+
+    foreach($listAdvertSkill as $advertSkill)
+    {
+      $em->remove($advertSkill);
+    }
+
+    // -- On supprime les catégories
     foreach ($advert->getCategories() as $category) {
       $advert->removeCategory($category);
     }
 
+    // -- On supprime les candidatures associées
+    foreach ($advert->getApplications() as $application) {
+      $advert->removeApplication($application);
+    }
+
     // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
     // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
+
+    // On supprime l'annonce
+    $em->remove($advert);
 
     // On déclenche la modification
     $em->flush();
@@ -269,12 +257,13 @@ class AdvertController extends Controller
 
   public function menuAction($limit)
   {
-    // On fixe en dur une liste ici, bien entendu par la suite
-    // on la récupérera depuis la BDD !
-    $listAdverts = array(
-      array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-      array('id' => 5, 'title' => 'Mission de webmaster'),
-      array('id' => 9, 'title' => 'Offre de stage webdesigner')
+    $em = $this->getDoctrine()->getManager();
+    $repository = $em->getRepository('OCPlatformBundle:Advert');
+    $listAdverts = $repository->findBy(
+      array(),                  // Pas de critère
+      array('date' => 'desc'),  // On trie par date décroissante
+      $limit,                   // On sélection $limit annonces
+      0                  // à partir du premier
     );
 
     return $this->render('OCPlatformBundle:Advert:menu.html.twig', array(

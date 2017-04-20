@@ -16,7 +16,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class AdvertRepository extends EntityRepository
 {
-  public function myFindAll()
+  public function myFindAll($limit=0)
   {
     // Méthode 1 : en passant par l'EntityManager
     $queryBuilder = $this->_em->createQueryBuilder()
@@ -29,9 +29,16 @@ class AdvertRepository extends EntityRepository
 
     // Méthode 2 : en passant par le raccourci (je recommande)
     $queryBuilder = $this->createQueryBuilder('a');
+    $queryBuilder->orderBy('a.date', 'DESC');
 
     // On n'ajoute pas de critère ou tri particulier, la construction
     // de notre requête est finale
+
+    // On limite le nombre de résultat s'il est spécifie 0 = pas de limite
+    if ($limit > 0)
+    {
+      $queryBuilder->setMaxResults($limit);
+    }
 
     // On récupère la Query à partir du QueryBuilder
     $query = $queryBuilder->getQuery();

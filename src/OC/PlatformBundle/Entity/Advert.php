@@ -307,7 +307,7 @@ class Advert
      *
      * @return Advert
      */
-    public function addApplication(\OC\PlatformBundle\Entity\Applications $application)
+    public function addApplication(\OC\PlatformBundle\Entity\Application $application)
     {
         $this->applications[] = $application;
 
@@ -320,9 +320,9 @@ class Advert
     /**
      * Remove application
      *
-     * @param \OC\PlatformBundle\Entity\Applications $application
+     * @param \OC\PlatformBundle\Entity\Application $application
      */
-    public function removeApplication(\OC\PlatformBundle\Entity\Applications $application)
+    public function removeApplication(\OC\PlatformBundle\Entity\Application $application)
     {
         $this->applications->removeElement($application);
 
