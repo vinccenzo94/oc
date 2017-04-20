@@ -28,7 +28,7 @@ class AdvertController extends Controller
 
     $em = $this->getDoctrine()->getManager();
     $repository = $em->getRepository('OCPlatformBundle:Advert');
-    $listAdverts = $repository->findAll();
+    $listAdverts = $repository->getAdverts();
 
     // Mais pour l'instant, on ne fait qu'appeler le template
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
