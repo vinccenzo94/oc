@@ -24,4 +24,17 @@
         {% endfor %}
     </ul>
 
+    <p>
+        {% for i in 1..nbPages %}
+            {% if i != 1 %} | {% endif %}
+            {% if i != page %}
+            <a href="{{ path('oc_platform_home', {'page': i }) }}">
+                {{ i }}
+            </a>
+            {% else %}
+                <b> {{ i }} </b>
+            {% endif %}
+        {% endfor %}
+    </p>
+
 {% endblock %}

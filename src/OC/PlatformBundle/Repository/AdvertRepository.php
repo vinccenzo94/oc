@@ -1,9 +1,12 @@
 <?php
 
+// src/OC/PlatformBundle/Repository/AdvertRepository.php
+
 namespace OC\PlatformBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * AdvertRepository
@@ -13,19 +16,26 @@ use Doctrine\ORM\QueryBuilder;
  */
 class AdvertRepository extends EntityRepository
 {
-  public function getAdverts()
+  public function getAdverts($page, $nbPerPage)
   {
     $queryBuilder = $this->createQueryBuilder('a')
       ->leftJoin('a.image', 'img')
       ->addSelect('img')
       ->leftJoin('a.categories', 'cat')
       ->addSelect('cat')
-      ->orderBy('a.date', 'DESC');
+      ->orderBy('a.date', 'DESC')
+      ->getQuery();
 
-    return $queryBuilder
-      ->getQuery()
-      ->getResult()
+    //return $queryBuilder->getResult();
+
+    $queryBuilder
+      // On définit l'annonce à partir de laquelle commencer la liste
+      ->setFirstResult(($page-1) * $nbPerPage)
+      // Ainsi que le nombre d'annonce à afficher sur une page
+      ->setMaxResults($nbPerPage)
       ;
+
+    return new Paginator($queryBuilder, true);
   }
 
   public function myFindAll($limit=0)

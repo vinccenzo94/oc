@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AdvertController extends Controller
 {
-  public function indexAction($page)
+  public function indexAction($page, $nbPerPage=3)
   {
     // On ne sait pas combien de pages il y a
     // Mais on sait qu'une page doit être supérieure ou égale à 1
@@ -28,11 +28,26 @@ class AdvertController extends Controller
 
     $em = $this->getDoctrine()->getManager();
     $repository = $em->getRepository('OCPlatformBundle:Advert');
-    $listAdverts = $repository->getAdverts();
+    $listAdverts = $repository->getAdverts($page, $nbPerPage);
+    $nbAdverts = count($listAdverts);
+
+    $nbPages = ceil($nbAdverts / $nbPerPage);
+    $next = 0;
+    $previous = 0;
+
+    if ($page > $nbPages) {
+      // On déclenche une exception NotFoundHttpException, cela va afficher
+      // une page d'erreur 404 (qu'on pourra personnaliser plus tard d'ailleurs)
+      throw new NotFoundHttpException('Page "'.$page.'" inexistante.');
+    }
 
     // Mais pour l'instant, on ne fait qu'appeler le template
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
-      'listAdverts' => $listAdverts
+      'listAdverts' => $listAdverts,
+      'page' => $page,
+      'nbPages' => $nbPages,
+      'next' => $next,
+      'previous' => $previous
     ));
   }
 
