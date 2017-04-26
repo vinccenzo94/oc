@@ -13,55 +13,35 @@ namespace OC\PlatformBundle\Purge;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\Constraints\DateTime;
 
+/**
+ * Class OCPurge : Système de nettoyage des entités
+ * @package OC\PlatformBundle\Purge
+ */
 class OCPurge
 {
+  /**
+   * @var EntityManager
+   */
   private $em;
 
+  /**
+   * OCPurge constructor.
+   * @param EntityManager $em
+   */
   public function __construct(EntityManager $em)
   {
     $this->em = $em;
   }
 
-  public function __purgerAdvert($days)
-  {
-    $queryAdverts = $this->em->createQueryBuilder()
-      ->delete('Advert', 'a')
-      ->where('a.date < DATE_SUB(CURDATE(), INTERVAL :days DAY)')
-      ->setParameter('days', $days)
-      ;
-
-    return $queryAdverts
-      ->getQuery()
-      ->getResult()
-      ;
-  }
-
-  public function _purgerAdvert($days)
-  {
-    $queryAdverts = $this->em->createQueryBuilder()
-      ->select('a')
-      ->from('OCPlatformBundle:Advert', 'a')
-      ->where('a.date < :date')
-      ->setParameter('date', new \DateTime('-'.$days.' day'))
-    ;
-
-    $listAvertsToDelete = $queryAdverts
-      ->getQuery()
-      ->getResult()
-    ;
-
-    foreach($listAvertsToDelete as $Advert)
-    {
-      $this->em->remove($Advert);
-    }
-
-    $this->em->flush();
-
-    return $listAvertsToDelete;
-  }
-
+  /**
+   * Supprimer les annonces antérieures à $days
+   *
+   * @param $days
+   * @return array
+   */
   public function purgerAdvert($days)
   {
+    // On récupère toutes les annonces qui sont antérieures à $days
     $queryAdverts = $this->em->createQueryBuilder()
       ->select('a')
       ->from('OCPlatformBundle:Advert', 'a')
@@ -81,10 +61,12 @@ class OCPurge
 
       foreach ($listAvertApplications as $Application)
       {
+        // On supprime les candidatures
         $Advert->removeApplication($Application);
         $this->em->remove($Application);
       }
 
+      // On supprime les annonces
       $this->em->remove($Advert);
     }
 

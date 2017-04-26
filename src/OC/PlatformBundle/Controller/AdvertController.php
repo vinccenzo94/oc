@@ -293,6 +293,7 @@ class AdvertController extends Controller
     // On récupère le service
     $purge = $this->container->get('oc_platform.purger.advert');
 
+    // On appelle la méthode de purge des annonces
     $listPurgedAdverts = $purge->purgerAdvert($days);
 
     return $this->render('OCPlatformBundle:Advert:purge.html.twig', array(
