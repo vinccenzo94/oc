@@ -10,12 +10,14 @@
 
 namespace OC\PlatformBundle\DataFixtures\ORM;
 
+use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use OC\PlatformBundle\Entity\Skill;
 
 
-class LoadSkill implements FixtureInterface
+class LoadSkill extends AbstractFixture implements OrderedFixtureInterface
 {
   public function load(ObjectManager $manager)
   {
@@ -33,5 +35,10 @@ class LoadSkill implements FixtureInterface
 
     // On déclenche l'enregistrement de toutes les catégories
     $manager->flush();
+  }
+
+  public function getOrder()
+  {
+    return 1;
   }
 }

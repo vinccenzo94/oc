@@ -1,0 +1,25 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/purge.html.twig #}
+
+{% extends "OCCoreBundle::layout.html.twig" %}
+
+{% block title %}
+  Purge - {{ parent() }}
+{% endblock %}
+
+{% block ocplatform_body %}
+
+  <h2>Liste des annonces supprimées</h2>
+
+  <ul>
+      {% for advert in listPurgeAdverts %}
+        <li>
+            {{ advert.title }}
+          par {{ advert.author }},
+          le {{ advert.date|date('d/m/Y') }}
+        </li>
+      {% else %}
+        <li>Pas (encore !) d'annonce supprimée</li>
+      {% endfor %}
+  </ul>
+
+{% endblock %}

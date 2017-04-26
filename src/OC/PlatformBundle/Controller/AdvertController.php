@@ -287,4 +287,16 @@ class AdvertController extends Controller
       'listAdverts' => $listAdverts
     ));
   }
+
+  public function purgeAction($days)
+  {
+    // On récupère le service
+    $purge = $this->container->get('oc_platform.purger.advert');
+
+    $listPurgedAdverts = $purge->purgerAdvert($days);
+
+    return $this->render('OCPlatformBundle:Advert:purge.html.twig', array(
+      'listPurgeAdverts' => $listPurgedAdverts
+    ));
+  }
 }

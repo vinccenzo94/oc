@@ -131,7 +131,7 @@ class Advert
      */
     public function setDate($date)
     {
-        $this->date = $date;
+        $this->date = new \DateTime($date);
 
         return $this;
     }

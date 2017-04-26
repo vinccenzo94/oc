@@ -1,6 +1,6 @@
 <?php
 
-namespace OC\PlatformBundle\Entity;
+namespace OC\PlatformBundle\Repository;
 
 /**
  * ApplicationRepository

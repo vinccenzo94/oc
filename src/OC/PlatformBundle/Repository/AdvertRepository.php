@@ -148,9 +148,16 @@ class AdvertRepository extends EntityRepository
   {
     $qd = $this
       ->createQueryBuilder('a')
-      ->leftJoin('a.application', 'app', 'WITH', 'YEAR(app.date) > 2013')
+      ->leftJoin('a.application', 'app')
       ->addSelect('app')
     ;
+
+    // Exemple avec Filtre dans la jointure
+    /*$qd = $this
+      ->createQueryBuilder('a')
+      ->leftJoin('a.application', 'app', 'WITH', 'YEAR(app.date) > 2013')
+      ->addSelect('app')
+    ;*/
 
     return $qd
       ->getQuery()
