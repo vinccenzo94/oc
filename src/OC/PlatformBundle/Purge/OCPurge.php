@@ -41,18 +41,14 @@ class OCPurge
    */
   public function purgerAdvert($days)
   {
-    // On récupère toutes les annonces qui sont antérieures à $days
-    $queryAdverts = $this->em->createQueryBuilder()
-      ->select('a')
-      ->from('OCPlatformBundle:Advert', 'a')
-      ->where('a.date < :date')
-      ->setParameter('date', new \DateTime('-'.$days.' day'))
-    ;
+    $advertRepository      = $this->em->getRepository('OCPlatformBundle:Advert');
+    $advertSkillRepository = $this->em->getRepository('OCPlatformBundle:AdvertSkill');
 
-    $listAvertsToDelete = $queryAdverts
-      ->getQuery()
-      ->getResult()
-    ;
+    // date d'il y a $days jours
+    $date = new \Datetime($days.' days ago');
+
+    // On récupère les annonces à supprimer
+    $listAvertsToDelete = $advertRepository->getAdvertsBefore($date);
 
     foreach($listAvertsToDelete as $Advert)
     {
@@ -64,6 +60,14 @@ class OCPurge
         // On supprime les candidatures
         $Advert->removeApplication($Application);
         $this->em->remove($Application);
+      }
+
+      // On récupère les AdvertSkill liées à cette annonce
+      $advertSkills = $advertSkillRepository->findBy(array('advert' => $Advert));
+
+      // Pour les supprimer toutes avant de pouvoir supprimer l'annonce elle-même
+      foreach ($advertSkills as $advertSkill) {
+        $this->em->remove($advertSkill);
       }
 
       // On supprime les annonces
