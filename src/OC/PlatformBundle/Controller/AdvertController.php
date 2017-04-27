@@ -10,6 +10,7 @@ use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Skill;
+use OC\PlatformBundle\Form\AdvertType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -97,24 +98,7 @@ class AdvertController extends Controller
   {
     // On crée un objet Advert
     $advert = new Advert();
-
-    // On crée le formBuilder grâce au service form factory
-    $formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert);
-
-    // On ajoute les champs de l'entité que l'on veut à notre formulaire
-    $formBuilder
-      ->add('date',       DateType::class)
-      ->add('title',      TextType::class)
-      ->add('content',    TextareaType::class)
-      ->add('author',     TextType::class)
-      ->add('published',  CheckboxType::class, array('required' => false))
-      ->add('email',      TextType::class)
-      ->add('save',       SubmitType::class)
-      ;
-    // Pour l'instant, pas de candidatures, catégories, etc..., on les gèrera plus tard
-
-    // à partir du formBuilder, on génère le formulaire
-    $form = $formBuilder->getForm();
+    $form = $this->get('form.factory')->create(AdvertType::class, $advert);
 
     // Si la requête est en POST
     if ($request->isMethod('POST')) {
