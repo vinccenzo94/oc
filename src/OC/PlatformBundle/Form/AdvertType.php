@@ -1,4 +1,5 @@
 <?php
+// src/OC/PlatformBundle/Form/AdvertType.php
 
 namespace OC\PlatformBundle\Form;
 

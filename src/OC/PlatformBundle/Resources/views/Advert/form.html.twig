@@ -10,6 +10,7 @@
     {# Les erreurs générales du formulaire. #}
     {{ form_errors(form) }}
 
+    {%  if form.date is defined %}
     <div class="form-group">
         {{ form_label(form.date, "Date", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
         {{ form_errors(form.date) }}
@@ -17,6 +18,7 @@
             {{ form_widget(form.date) }}
         </div>
     </div>
+    {% endif %}
 
     {# Génération manuelle et éclatée : #}
     <div class="form-group">

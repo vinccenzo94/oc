@@ -5,7 +5,6 @@
  * Date: 12/04/2017
  * Time: 15:51
  */
-
 // src/OC/PlatformBundle/Entity/Application.php
 
 namespace OC\PlatformBundle\Entity;
