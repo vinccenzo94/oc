@@ -2,6 +2,9 @@
 
 namespace OC\PlatformBundle\Form;
 
+use OC\PlatformBundle\OCPlatformBundle;
+use OC\PlatformBundle\Repository\CategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -19,6 +22,9 @@ class AdvertType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+      // Arbitrairement, on récupère toutes les catégories qui commencent par "D"
+      $pattern = 'D%';
+
         $builder
           ->add('date',      DateTimeType::class)
           ->add('title',     TextType::class)
@@ -32,10 +38,13 @@ class AdvertType extends AbstractType
            * - 2e argument : type du champ, ici "CollectionType" qui est une liste de quelque chose
            * - 3e argument : tableau d'options du champ
            */
-          ->add('categories', CollectionType::class, array(
-            'entry_type'    => CategoryType::class,
-            'allow_add'     => true,
-            'allow_delete'  => true
+          ->add('categories', EntityType::class, array(
+            'class'    => 'OCPlatformBundle:Category',
+            'choice_label'  => 'name',
+            'multiple'  => true,
+            'query_builder' => function(CategoryRepository $repository) use($pattern) {
+              return $repository->getLikeQueryBuilder($pattern);
+            }
           ))
           ->add('save',      SubmitType::class)
           ;
