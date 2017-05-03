@@ -54,6 +54,15 @@
 
     {# Idem pour un autre champ. #}
     <div class="form-group">
+        {{ form_label(form.email, "Email", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+        {{ form_errors(form.email) }}
+        <div class="col-sm-10">
+            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    {# Idem pour un autre champ. #}
+    <div class="form-group">
         {{ form_label(form.published, "Publier", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
         {{ form_errors(form.published) }}
         <div class="col-sm-10">

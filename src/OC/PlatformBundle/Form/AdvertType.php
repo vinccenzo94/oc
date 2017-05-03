@@ -32,6 +32,7 @@ class AdvertType extends AbstractType
         ->add('date',      DateTimeType::class)
         ->add('title',     TextType::class)
         ->add('author',    TextType::class)
+        ->add('email',     TextType::class)
         ->add('content',   TextareaType::class)
         ->add('image',     ImageType::class)
         /**
