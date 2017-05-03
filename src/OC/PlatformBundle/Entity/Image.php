@@ -11,10 +11,11 @@
 namespace OC\PlatformBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Table(name="oc_image")
- * @ORM\Entity(repositoryClass="OC\PlatformBundle\Entity\ImageRepository")
+ * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\ImageRepository")
  */
 class Image
 {
@@ -34,6 +35,8 @@ class Image
    * @ORM\Column(name="alt", type="string", length=255)
    */
   private $alt;
+
+  private $file;
 
     /**
      * Get id
@@ -91,5 +94,15 @@ class Image
     public function getAlt()
     {
         return $this->alt;
+    }
+
+    public function getFile()
+    {
+      return $this->file;
+    }
+
+    public function setFile(UploadedFile $file = null)
+    {
+      $this->file = $file;
     }
 }
