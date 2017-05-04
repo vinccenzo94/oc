@@ -166,11 +166,12 @@ class AdvertController extends Controller
       }
     }
     return $this->render('OCPlatformBundle:Advert:edit.html.twig', array(
+      'advert' => $advert,
       'form' => $form->createView(),
     ));
   }
 
-  public function deleteAction($id)
+  public function deleteAction(Request $request, $id)
   {
     $em = $this->getDoctrine()->getManager();
 
@@ -184,35 +185,49 @@ class AdvertController extends Controller
       throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     }
 
-    // On va d'abord supprimer les liaisons entre les annonces et les compétences
-    $repository = $em->getRepository('OCPlatformBundle:AdvertSkill');
-    $listAdvertSkill = $repository->findBy(array('advert' => $advert));
+    // On crée un formulaire vide, qui ne contiendra que le champ CSRF
+    // Cela permet de protéger la suppression d'annonce contre cette faille
+    $form = $this->get('form.factory')->create();
 
-    foreach($listAdvertSkill as $advertSkill)
-    {
-      $em->remove($advertSkill);
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      // On va d'abord supprimer les liaisons entre les annonces et les compétences
+      $repository = $em->getRepository('OCPlatformBundle:AdvertSkill');
+      $listAdvertSkill = $repository->findBy(array('advert' => $advert));
+
+      foreach($listAdvertSkill as $advertSkill)
+      {
+        $em->remove($advertSkill);
+      }
+
+      // -- On supprime les catégories
+      foreach ($advert->getCategories() as $category) {
+        $advert->removeCategory($category);
+      }
+
+      // -- On supprime les candidatures associées
+      foreach ($advert->getApplications() as $application) {
+        $advert->removeApplication($application);
+      }
+
+      // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
+      // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
+
+      // On supprime l'annonce
+      $em->remove($advert);
+
+      // On déclenche la modification
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('info', "L'annonce a bien été supprimée.");
+
+      return $this->redirectToRoute('oc_platform_home');
     }
 
-    // -- On supprime les catégories
-    foreach ($advert->getCategories() as $category) {
-      $advert->removeCategory($category);
-    }
 
-    // -- On supprime les candidatures associées
-    foreach ($advert->getApplications() as $application) {
-      $advert->removeApplication($application);
-    }
-
-    // Pour persister le changement dans la relation, il faut persister l'entité propriétaire
-    // Ici, Advert est le propriétaire, donc inutile de la persister car on l'a récupérée depuis Doctrine
-
-    // On supprime l'annonce
-    $em->remove($advert);
-
-    // On déclenche la modification
-    $em->flush();
-
-    return $this->render('OCPlatformBundle:Advert:delete.html.twig');
+    return $this->render('OCPlatformBundle:Advert:delete.html.twig', array(
+      'advert' => $advert,
+      'form' => $form->createView(),
+    ));
   }
 
   public function menuAction($limit)
