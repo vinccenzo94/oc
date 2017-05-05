@@ -5,6 +5,9 @@ namespace OC\PlatformBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Advert
@@ -12,6 +15,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(name="advert")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\AdvertRepository")
  * @ORM\HasLifeCycleCallbacks()
+ * @UniqueEntity(fields="title", message="Une annonce existe déjà avec ce titre.")
  */
 class Advert
 {
@@ -28,13 +32,15 @@ class Advert
      * @var \DateTime
      *
      * @ORM\Column(name="date", type="datetime")
+     * @Assert\DateTime()
      */
     private $date;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="title", type="string", length=255)
+     * @ORM\Column(name="title", type="string", length=255, unique=true)
+     * @Assert\Length(min=10)
      */
     private $title;
 
@@ -42,6 +48,7 @@ class Advert
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=255)
+     * @Assert\Length(min=2)
      */
     private $author;
 
@@ -49,6 +56,7 @@ class Advert
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     * @Assert\NotBlank()
      */
     private $content;
 
@@ -89,6 +97,7 @@ class Advert
   /**
    * @ORM\ManyToMany(targetEntity="OC\PlatformBundle\Entity\Category", cascade={"persist"})
    * @ORM\JoinTable(name="oc_advert_category")
+   * @Assert\Valid()
    */
     private $categories;
 
@@ -452,5 +461,29 @@ class Advert
     public function getSlug()
     {
         return $this->slug;
+    }
+
+  /**
+   * @return bool
+   * @Assert\IsTrue()
+   */
+    public function isTitle()
+    {
+      return false;
+    }
+
+    public function isContentValid(ExecutionContextInterface $context)
+    {
+      $forbiddenWords = array('démotivation', 'abandon');
+
+      // On vérifie que le contenu ne contient pas l'un des mots
+      if (preg_match('#'.implode('|', $forbiddenWords).'#', $this->getContent())) {
+        // La règle est violée, on définit l'erreur
+        $context
+          ->buildViolation('Contenu invalide car il contient un mot interdit.') // message
+          ->atPath('content') // attribut de l'objet qui est violé
+          ->addViolation() // ceci déclenche l'erreur, ne l'oubliez pas
+        ;
+      }
     }
 }
