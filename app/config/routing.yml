@@ -1,3 +1,8 @@
+oc_user:
+    resource: "@OCUserBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 oc_core:
     resource: "@OCCoreBundle/Resources/config/routing.yml"
     prefix:   /
@@ -5,3 +10,14 @@ oc_core:
 oc_platform:
     resource: "@OCPlatformBundle/Resources/config/routing.yml"
     prefix:   /platform
+
+login:
+    path: /login
+    defaults:
+      _controller: OCUserBundle:Security:login
+
+login_check:
+    path: /login_check
+
+logout:
+    path: /logout
