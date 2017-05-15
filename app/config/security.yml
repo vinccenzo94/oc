@@ -3,6 +3,7 @@
 security:
   encoders:
     Symfony\Component\Security\Core\User\Users: plaintext
+    OC\UserBundle\Entity\User: plaintext
 
   role_hierarchy:
     # Un admin hérite des droits d'auteur et de modérateur
@@ -12,11 +13,10 @@ security:
 
   # http://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
   providers:
-    in_memory:
-      memory:
-        users:
-          user:   { password: userpass, roles: ['ROLE_USER'] }
-          admin:  { password: adminpass, roles: ['ROLE_ADMIN'] }
+    main:
+      entity:
+        class: OC\UserBundle\Entity\User
+        property: username
 
   provider: in_memory
   firewalls:
@@ -28,6 +28,7 @@ security:
     main:
       pattern: ^/
       anonymous: true
+      provider: main
       form_login:
         login_path: login
         check_path: login_check
